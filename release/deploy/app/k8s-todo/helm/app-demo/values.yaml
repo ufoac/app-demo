@@ -1,0 +1,24 @@
+namespace: demo
+
+base:
+  app:
+    repository: app-demo
+    tag: v1
+    cpuLimit: "2"
+    cpuReq: "1"
+    memLimit: 2Gi
+    memReq: 1Gi
+
+config:
+  PROFILES_ACTIVE: prod
+  TZ: Asia/Shanghai
+  PGSQL_HOST: pg.devops
+  PGSQL_PORT: "5432"
+  PGSQL_DB: app
+  PGSQL_USER: postgres
+  PGSQL_PWD: postgres123
+  REDIS_HOST: redis.devops
+  REDIS_PORT: "6379"
+  REDIS_USERNAME: default
+  REDIS_PWD: redis123
+  REDIS_NODES: ~

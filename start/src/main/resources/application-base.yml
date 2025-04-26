@@ -1,0 +1,65 @@
+spring:
+  application:
+    name: app
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${PG_HOST:postgres}:${PG_PORT:5432}/app?connectTimeout=5000&socketTimeout=30000&useSSL=false
+    username: ${PG_USER:postgres}
+    password: ${PG_PASS:postgres}
+    hikari:
+      maximum-pool-size: 8
+      minimum-idle: 4
+      connection-timeout: 5000
+      idle-timeout: 600000
+      keepalive-time: 300000
+      max-lifetime: 1800000
+      auto-commit: true
+      transaction-isolation: TRANSACTION_READ_COMMITTED
+      register-mbeans: false
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+  threads:
+    virtual:
+      enabled: true
+  flyway:
+    enabled: ${ENABLE_FLYWAY:false}
+    baseline-on-migrate: true
+    table: db_migrations
+    clean-disabled: false
+    locations: classpath:db/migration
+
+server:
+  port: ${WEB_PORT:8080}
+  shutdown: graceful
+  tomcat:
+    connection-timeout: 10000
+    accept-count: 16
+    protocol: org.apache.coyote.http11.Http11NioProtocol
+  compression:
+    enabled: true
+    mime-types: application/javascript,text/css,application/json,application/xml,text/html,text/xml,text/plain
+    min-response-size: 4096
+
+management:
+  endpoints:
+    enabled-by-default: ${ENABLE_ENDPOINT:false}
+    web:
+      exposure:
+        include: info, health, metrics, features, env, flyway, beans
+  endpoint:
+    health:
+      show-details: always
+    shutdown:
+      enabled: false
+
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-handlers-package: com.demo.app.repository.config.mybatis.handler
+  configuration:
+    map-underscore-to-camel-case: true
+    call-setters-on-nulls: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+log:
+  path: ./logs
+  name: ${spring.application.name}

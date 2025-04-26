@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-demo-config
+  namespace: {{ .Values.namespace }}
+data:
+  application.properties: |
+    spring.profiles.active={{ .Values.config.PROFILES_ACTIVE }}
+    server.port=8080

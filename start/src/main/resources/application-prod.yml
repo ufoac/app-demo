@@ -1,0 +1,4 @@
+logging:
+  config: classpath:log/logback-prod.xml
+  level:
+    root: INFO

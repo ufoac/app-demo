@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-demo-dp
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app-demo
+  template:
+    metadata:
+      labels:
+        app: app-demo
+    spec:
+      containers:
+      - name: app-demo
+        image:  {{ .Values.base.app.repository }}:{{ .Values.base.app.tag }}
+        envFrom:
+          - configMapRef:
+              name: common-config
+        env:
+        - name: JAVA_OPTS
+          value: "-server -XX:+UseZGC -XX:+ZGenerational"
+        volumeMounts:
+        -  name: config-vol 
+           mountPath: /app/config/application.properties
+           subPath: application.properties
+        - name: logs-vol
+          mountPath: /app/logs
+        ports:
+        - containerPort: 8080
+        - containerPort: 27777
+        resources:
+          limits:
+            cpu: {{ .Values.base.app.cpuLimit }}
+            memory: {{ .Values.base.app.memLimit }}
+          requests:
+            cpu: {{ .Values.base.app.cpuReq }}
+            memory: {{ .Values.base.app.memLimit }}
+      volumes:
+      - name: config-vol
+        configMap:
+          name: app-demo-config
+      - name: logs-vol
+        hostPath:
+          path: /data/app/app-demo/logs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-demo-svc
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    app: app-demo
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+    - name: powerjob
+      protocol: TCP
+      port: 27777
+      targetPort: 27777
+  type: ClusterIP
