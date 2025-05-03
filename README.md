@@ -57,8 +57,8 @@ app-demo
     - GitHub Actions 流程配置:
         - CI: `.github/workflows/ci.yml`
         - CD: `.github/workflows/cd.yml`
-    - 集成测试: `src/test/java/com/demo/app/BaseIntegrationTest.java`
-    - 单元测试: `src/test/DDD各层/Test*.java` **50+case**
+    - 集成测试: `start/src/test/java/com/demo/app/BaseIntegrationTest.java`
+    - 单元测试: `各模块/src/test/Test*.java` **50+case**
 ## 5. CI/CD 流程
   - **CI**（代码提交触发）:
     ```plaintext
