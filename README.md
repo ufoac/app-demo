@@ -9,7 +9,7 @@
 - 基于领域驱动设计（DDD）的账号/卡片Demo
 - 提供约定的 RESTful API
 - 支持参数校验、分页、异常处理、事件驱动等技术特性
-- 支持各个模块的单元测试(50+case) 和**集成测试**(start模型下)
+- 支持各个模块的单元测试(50+case) 和**集成测试**(start模块下)
 - 通过 GitHub Action 实现 CI/CD，自动化编译、打包、镜像、部署至 AWS 云环境（EC2 + RDS）
 
 ---
@@ -30,20 +30,20 @@
 ```plaintext
 app-demo  
 ├── app-demo-domain       # 领域层（核心业务逻辑）  
-│   └── model             # 领域模型（Account/Card）  
 ├── app-demo-application  # 应用层（服务编排）  
-│   └── service           # 服务（AccountCardBizService）  
-├── app-demo-interface    # 接口适配层  
+├── app-demo-interface    # 接口层  
 │   ├── controller        # REST控制器（Account/Card Controller）  
 │   └── excpeion          # 统一异常管理  
-├── app-demo-infrastructure # 基础设施层  
+├── app-demo-infrastructure # 基础设施层
+│   ├── event             # 事件层实现  
 │   ├── repository        # 持久层实现  
 │   └── config            # ORM配置（Mapper扫描/乐观锁/分页插件）  
 │   └── db.migration      # Flyway SQL脚本（V1.0.0__init.sql）  
 └── start                 # 启动类（DemoApplication）
 └── release               # 发布支持目录
-    ├── deploy            # 部署脚本, 包括Docker Compoes和k8s部署包  
-    └── images            # 镜像文件和手动脚本 
+│   ├── deploy            # 部署脚本, 包括Docker Compoes和k8s部署包  
+│   └── images            # 镜像文件和手动脚本
+└── .github               # CI/CD脚本 
 ```
 
 ## 4. 关键文件路径
