@@ -1,8 +1,7 @@
 # AppDemo
-**Author**: [caofu](https://github.com/ufoac)  
-**Create Date**: 20250426
-**Update Date**: 20240503
-**GitHub**: [https://github.com/ufoac/app-demo](https://github.com/ufoac/app-demo)
+- **Author**: [caofu](https://github.com/ufoac)  
+- **Create Date**: 20250426 **Update Date**: 20240503
+- **GitHub**: [https://github.com/ufoac/app-demo](https://github.com/ufoac/app-demo)
 
 ---
 
@@ -10,8 +9,8 @@
 - 基于领域驱动设计（DDD）的账号/卡片Demo
 - 提供约定的 RESTful API
 - 支持参数校验、分页、异常处理、事件驱动等技术特性
-- 支持各个模块的单元测试(50+case) 和典型流程的集成测试
-- 已通过 GitHub Action 实现 CI/CD，自动化编译、打包、镜像、部署至 AWS 云环境（EC2 + RDS）
+- 支持各个模块的单元测试(50+case) 和**集成测试**(start模型下)
+- 通过 GitHub Action 实现 CI/CD，自动化编译、打包、镜像、部署至 AWS 云环境（EC2 + RDS）
 
 ---
 
@@ -53,7 +52,7 @@ app-demo
 - **CI/CD 脚本**
     - Dockerfile: `release/images/app/Dockerfile`
     - Docker Compose 部署脚本: `release/deploy/app/docker-compose/`
-    - K8S 部署脚本（待完善）: `release/deploy/app/k8s-todo/`
+    - K8S 部署包（待完善）: `release/deploy/app/k8s-todo/`
     - GitHub Actions 流程配置:
         - CI: `.github/workflows/ci.yml`
         - CD: `.github/workflows/cd.yml`
@@ -70,7 +69,6 @@ app-demo
   ```
 
 ## 6. 云上架构（AWS）
-### 架构拓扑
 ```plaintext
 用户  ➡ AWS Gateway ➡ EC2（App） ➡ RDS（PostgreSQL）
 ```
