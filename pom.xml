@@ -32,7 +32,8 @@
         <pagehelper.version>6.1.0</pagehelper.version>
         <mapstruct.version>1.6.3</mapstruct.version>
         <flyway.version>10.17.3</flyway.version>
-        <mybatisplus.version>3.5.11</mybatisplus.version>
+        <mybatisplus.version>3.5.12</mybatisplus.version>
+        <assertj.version>3.27.3</assertj.version>
 
     </properties>
 

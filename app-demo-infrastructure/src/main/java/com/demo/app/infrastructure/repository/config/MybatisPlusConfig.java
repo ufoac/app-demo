@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
  * The type Mybatis plus config.
  */
 @Configuration
-@MapperScan({"com.demo.app.infrastructure.repository.**.mapper.**"})
+@MapperScan({"com.demo.app.infrastructure.repository.**.mapper"})
 public class MybatisPlusConfig {
 
     /**

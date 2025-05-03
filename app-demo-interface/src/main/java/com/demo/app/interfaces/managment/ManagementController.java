@@ -1,6 +1,7 @@
 package com.demo.app.interfaces.managment;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.caffeine.CaffeineCache;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,15 +19,26 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping("/dev")
 public class ManagementController {
-
+    @Value("${APP_VERSION:1.0}")
+    private String version;
     private final List<CacheManager> cacheManagers;
+
+    /**
+     * Info string.
+     *
+     * @return the string
+     */
+    @GetMapping(value = "/info")
+    public String info() {
+        return "Hello World! " + version;
+    }
 
     /**
      * Cache object.
      *
      * @return the object
      */
-    @GetMapping(value = "/cache")
+    @GetMapping(value = "/stats")
     public Object cache() {
         var cacheManager = cacheManagers.getFirst();
         return cacheManager.getCacheNames().stream().map(e -> {
@@ -39,10 +51,4 @@ public class ManagementController {
                     c.getNativeCache().stats()), "data", c.getNativeCache().asMap());
         }).toList();
     }
-
-    @GetMapping(value = "/info")
-    public String info() {
-        return "Hello World!";
-    }
-
 }

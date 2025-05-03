@@ -1,7 +1,5 @@
 package com.demo.app.domain.repository;
 
-import com.demo.app.domain.common.entity.CommonPage;
-import com.demo.app.domain.common.entity.CommonPageInfo;
 import com.demo.app.domain.model.card.Card;
 
 import java.util.Optional;
@@ -19,15 +17,6 @@ public interface ICardRepo {
     Optional<Card> findById(Long id);
 
     /**
-     * Find by account id list.
-     *
-     * @param accountId the account id
-     * @param pageInfo  the page info
-     * @return the list
-     */
-    CommonPage<Card> findByAccountId(Long accountId, CommonPageInfo pageInfo);
-
-    /**
      * Save.
      *
      * @param card the card
@@ -35,6 +24,20 @@ public interface ICardRepo {
      */
     Card save(Card card);
 
+    /**
+     * Change status.
+     *
+     * @param card the card
+     */
+    void changeStatus(Card card);
+
+
+    /**
+     * Change account.
+     *
+     * @param card the card
+     */
+    void changeAccount(Card card);
 
     /**
      * Exists card boolean.

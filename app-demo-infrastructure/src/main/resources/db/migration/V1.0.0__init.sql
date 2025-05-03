@@ -17,6 +17,7 @@ CREATE TABLE card
 (
     id          BIGSERIAL  PRIMARY KEY,
     account_id  BIGINT      NULL,
+    rfid        VARCHAR(255) NOT NULL,
     status      VARCHAR(20) NOT NULL CHECK (status IN ('CREATED', 'ASSIGNED', 'ACTIVATED', 'DEACTIVATED')),
     info        VARCHAR(255) DEFAULT '',
     version     Integer NOT NULL DEFAULT 0,

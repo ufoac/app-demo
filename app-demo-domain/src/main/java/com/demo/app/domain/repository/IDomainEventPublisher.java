@@ -1,8 +1,7 @@
 package com.demo.app.domain.repository;
 
+import com.demo.app.domain.common.entity.AggregateRoot;
 import com.demo.app.domain.common.event.DomainEvent;
-
-import java.util.Collection;
 
 /**
  * The interface Domain event publisher.
@@ -16,9 +15,10 @@ public interface IDomainEventPublisher {
     void publish(DomainEvent event);
 
     /**
-     * Publish all.
+     * Poll event from.
      *
-     * @param events the events
+     * @param <ID> the type parameter
+     * @param root the root
      */
-    void publishAll(Collection<DomainEvent> events);
+    <ID> void pollEventFrom(AggregateRoot<ID> root);
 }

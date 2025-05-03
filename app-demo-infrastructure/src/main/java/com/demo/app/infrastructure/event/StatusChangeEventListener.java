@@ -1,7 +1,7 @@
 package com.demo.app.infrastructure.event;
 
-import com.demo.app.domain.model.account.AccountStatusChangedEvent;
-import com.demo.app.domain.model.card.CardStatusChangedEvent;
+import com.demo.app.domain.model.account.event.AccountStatusChangedEvent;
+import com.demo.app.domain.model.card.event.CardStatusChangedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;

@@ -1,8 +1,6 @@
 package com.demo.app.domain.repository;
 
 
-import com.demo.app.domain.common.entity.CommonPage;
-import com.demo.app.domain.common.entity.CommonPageInfo;
 import com.demo.app.domain.model.account.Account;
 
 import java.util.Optional;
@@ -11,13 +9,7 @@ import java.util.Optional;
  * The interface Account repo.
  */
 public interface IAccountRepo {
-    /**
-     * Find by id account.
-     *
-     * @param id the id
-     * @return the account
-     */
-    Optional<Account> findById(Long id);
+
 
     /**
      * Exists by email boolean.
@@ -36,13 +28,18 @@ public interface IAccountRepo {
     Account save(Account account);
 
     /**
-     * Find with cards common page.
+     * Find by id account.
      *
-     * @param page      the page
-     * @param withCards the with cards
-     * @return the common page
+     * @param id the id
+     * @return the account
      */
-    CommonPage<Account> getPage(CommonPageInfo page, boolean withCards);
+    Optional<Account> findById(Long id);
+    /**
+     * Change status.
+     *
+     * @param account the account
+     */
+    void changeStatus(Account account);
 
 
     /**

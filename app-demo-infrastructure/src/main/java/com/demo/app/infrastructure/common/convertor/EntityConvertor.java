@@ -5,15 +5,14 @@ import com.demo.app.domain.model.card.Card;
 import com.demo.app.infrastructure.repository.account.AccountDO;
 import com.demo.app.infrastructure.repository.card.CardDO;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 
 /**
  * The interface Global convertor.
  */
-@Mapper(componentModel = "spring") // 生成 Spring Bean
+@Mapper(componentModel = "spring",
+        uses = ContractIdConverter.class)
 public interface EntityConvertor {
-
     /**
      * To bo account.
      *
@@ -28,7 +27,6 @@ public interface EntityConvertor {
      * @param account the account
      * @return the account do
      */
-    @Mapping(target = "cards", ignore = true)
     AccountDO toDO(Account account);
 
     /**

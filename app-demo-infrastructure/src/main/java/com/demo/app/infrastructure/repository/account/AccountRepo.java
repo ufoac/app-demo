@@ -2,12 +2,9 @@ package com.demo.app.infrastructure.repository.account;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.demo.app.domain.common.entity.CommonPage;
 import com.demo.app.domain.common.entity.CommonPageInfo;
 import com.demo.app.domain.model.account.Account;
-import com.demo.app.domain.repository.IAccountRepo;
 import com.demo.app.infrastructure.common.convertor.EntityConvertor;
-import com.demo.app.infrastructure.common.convertor.PageConvertor;
 import com.demo.app.infrastructure.common.exception.InfrastructureException;
 import com.demo.app.infrastructure.repository.account.mapper.AccountMapper;
 import com.demo.app.infrastructure.repository.card.CardDO;
@@ -29,7 +26,7 @@ import static com.demo.app.infrastructure.common.exception.InfrastructureErrorCo
 @Repository
 @RequiredArgsConstructor
 @Slf4j
-public class AccountRepo implements IAccountRepo {
+public class AccountRepo implements IAccountReadWriteRepo {
     private final AccountMapper accountMapper;
     private final CardMapper cardMapper;
 
@@ -46,6 +43,20 @@ public class AccountRepo implements IAccountRepo {
         return entityConvertor.toBO(accountDO);
     }
 
+
+    @Override
+    public void changeStatus(Account account) {
+        var updateAccountDO = new AccountDO();
+        updateAccountDO.setId(account.getId());
+        updateAccountDO.setStatus(account.getStatus());
+        updateAccountDO.setVersion(account.getVersion());
+        var updated = accountMapper.updateById(updateAccountDO);
+        if (updated <= 0) {
+            log.error("Save account error, optimistic lock conflict detected");
+            throw new InfrastructureException(OPTIMISTIC_LOCKER_FAILED);
+        }
+    }
+
     @Override
     public boolean existsByEmail(String email) {
         var query = new LambdaQueryWrapper<AccountDO>();
@@ -60,7 +71,7 @@ public class AccountRepo implements IAccountRepo {
     }
 
     @Override
-    public CommonPage<Account> getPage(CommonPageInfo page, boolean withCards) {
+    public Page<AccountDO> getPage(CommonPageInfo page, boolean withCards) {
         Page<AccountDO> pageInfo = new Page<>(
                 page.getPageNum(),
                 page.getPageSize()
@@ -84,7 +95,7 @@ public class AccountRepo implements IAccountRepo {
                 );
             }
         }
-        return PageConvertor.toCommonPage(resultPage, entityConvertor::toBO);
+        return resultPage;
     }
 
     @Override

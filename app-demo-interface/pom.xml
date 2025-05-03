@@ -17,14 +17,10 @@
     <dependencies>
         <dependency>
             <groupId>com.cao.demo</groupId>
-            <artifactId>app-demo-domain</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.cao.demo</groupId>
             <artifactId>app-demo-application</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>

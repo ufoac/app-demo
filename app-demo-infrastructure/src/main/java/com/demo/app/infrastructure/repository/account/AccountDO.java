@@ -19,7 +19,7 @@ import java.util.List;
 public class AccountDO {
     /**
      * Primary key.
-     * Change IdType.ASSIGN_ID to use Snowflake
+     * Set IdType.ASSIGN_ID to use Snowflake
      */
     @TableId(type = IdType.AUTO)
     private Long id;
@@ -33,15 +33,14 @@ public class AccountDO {
      */
     @TableField(exist = false)
     private List<CardDO> cards;
-
     /**
-     * Creation timestamp (auto-filled on INSERT)
+     * Creation timestamp (autofilled on INSERT)
      */
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
     /**
-     * Last modification timestamp (auto-filled on INSERT/UPDATE)
+     * Last modification timestamp (autofilled on INSERT/UPDATE)
      */
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;

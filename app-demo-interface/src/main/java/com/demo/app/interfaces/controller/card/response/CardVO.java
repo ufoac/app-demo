@@ -1,6 +1,7 @@
 package com.demo.app.interfaces.controller.card.response;
 
 import com.demo.app.domain.model.card.CardStatus;
+import com.demo.app.domain.model.card.RFID;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
@@ -18,6 +19,7 @@ public class CardVO {
     private String accountId;
     private CardStatus status;
     private String info;
+    private RFID rfid;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 }

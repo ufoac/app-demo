@@ -3,17 +3,21 @@ package com.demo.app.interfaces.controller.card;
 import com.demo.app.interfaces.common.convertor.WebEntityConvertor;
 import com.demo.app.interfaces.common.entity.CommonResult;
 import com.demo.app.interfaces.common.entity.CommonResultCode;
-
 import com.demo.app.interfaces.controller.card.request.AssignCardRequest;
 import com.demo.app.interfaces.controller.card.request.ChangeCardStatusRequest;
 import com.demo.app.interfaces.controller.card.request.CreateCardRequest;
+import com.demo.app.interfaces.controller.card.response.CardAssignResult;
+import com.demo.app.interfaces.controller.card.response.CardStatusResult;
 import com.demo.app.interfaces.controller.card.response.CardVO;
-import com.demo.app.service.dto.request.*;
+import com.demo.app.service.common.entity.request.AssignCardCommand;
+import com.demo.app.service.common.entity.request.CreateCardCommand;
+import com.demo.app.service.common.entity.request.UpdateCardCommand;
 import com.demo.app.service.service.AccountCardBizService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -25,7 +29,8 @@ import java.util.Optional;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/card")
+@RequestMapping("/api/v1/cards")
+@Validated
 public class CardController {
     private final AccountCardBizService accountCardBizService;
     private final WebEntityConvertor webEntityConvertor;
@@ -36,7 +41,7 @@ public class CardController {
      * @param request Card creation data
      * @return Created card details
      */
-    @PostMapping("/card/create")
+    @PostMapping
     public CommonResult<CardVO> createCard(@Valid @RequestBody CreateCardRequest request) {
         return Optional.ofNullable(accountCardBizService.createCard(
                         CreateCardCommand.builder()
@@ -50,38 +55,44 @@ public class CardController {
     /**
      * Update card status
      *
+     * @param id      the id
      * @param request Status change request
      * @return Updated card details
      */
-    @PostMapping("/card/status")
-    public CommonResult<CardVO> updateCardStatus(@Valid @RequestBody ChangeCardStatusRequest request) {
-        return Optional.ofNullable(accountCardBizService.updateCardStatus(
-                        UpdateCardCommand.builder()
-                                .id(request.getId())
-                                .status(request.getStatus())
-                                .build()))
-                .map(webEntityConvertor::toVO)
-                .map(CommonResult::success)
-                .orElse(CommonResult.failed(CommonResultCode.ERROR));
+    @PatchMapping("/{id}/status")
+    public CommonResult<CardStatusResult> updateCardStatus(@PathVariable("id") @Positive Long id,
+                                                           @Valid @RequestBody ChangeCardStatusRequest request) {
+        var status = accountCardBizService.updateCardStatus(
+                UpdateCardCommand.builder()
+                        .id(id)
+                        .status(request.getStatus())
+                        .build());
+        return CommonResult.success(CardStatusResult.builder()
+                .id(id)
+                .status((status))
+                .build());
     }
 
 
     /**
      * Assign card to account
      *
+     * @param id      the id
      * @param request Assignment details
      * @return Updated card details
      */
-    @PostMapping("/card/assign")
-    public CommonResult<CardVO> assignCard(@Valid @RequestBody AssignCardRequest request) {
-        return Optional.ofNullable(accountCardBizService.assignCard(
-                        AssignCardCommand.builder()
-                                .accountId(request.getAccountId())
-                                .cardId(request.getCardId())
-                                .build()))
-                .map(webEntityConvertor::toVO)
-                .map(CommonResult::success)
-                .orElse(CommonResult.failed(CommonResultCode.ERROR));
+    @PatchMapping("/{id}/assign")
+    public CommonResult<CardAssignResult> assignCard(@PathVariable("id") @Positive Long id,
+                                                     @Valid @RequestBody AssignCardRequest request) {
+        accountCardBizService.assignCard(
+                AssignCardCommand.builder()
+                        .accountId(request.getAccountId())
+                        .cardId(id)
+                        .build());
+        return CommonResult.success(CardAssignResult.builder()
+                .id(id)
+                .accountId(request.getAccountId())
+                .build());
     }
 
     /**
@@ -90,7 +101,7 @@ public class CardController {
      * @param id Card ID
      * @return Card details
      */
-    @GetMapping("/detail/{id}")
+    @GetMapping("/{id}")
     public CommonResult<CardVO> card(@PathVariable("id") @Positive Long id) {
         return accountCardBizService.getCardById(id)
                 .map(webEntityConvertor::toVO)

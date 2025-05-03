@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: app
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${PG_HOST:postgres}:${PG_PORT:5432}/app?connectTimeout=5000&socketTimeout=30000&useSSL=false
+    username: ${PG_USER:postgres}
+    password: ${PG_PASS:postgres}
+    hikari:
+      maximum-pool-size: 8
+      minimum-idle: 4
+      connection-timeout: 5000
+      idle-timeout: 600000
+      keepalive-time: 300000
+      max-lifetime: 1800000
+      auto-commit: true
+      transaction-isolation: TRANSACTION_READ_COMMITTED
+      register-mbeans: false
+
+
+
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-handlers-package: com.demo.app.repository.config.mybatis.handler
+  configuration:
+    map-underscore-to-camel-case: true
+    call-setters-on-nulls: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+

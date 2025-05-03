@@ -1,12 +1,11 @@
 package com.demo.app.infrastructure.event;
 
+import com.demo.app.domain.common.entity.AggregateRoot;
 import com.demo.app.domain.common.event.DomainEvent;
 import com.demo.app.domain.repository.IDomainEventPublisher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
-
-import java.util.Collection;
 
 /**
  * The type Spring domain event publisher.
@@ -22,7 +21,9 @@ public class SpringDomainEventPublisher implements IDomainEventPublisher {
     }
 
     @Override
-    public void publishAll(Collection<DomainEvent> events) {
+    public <ID> void pollEventFrom(AggregateRoot<ID> root) {
+        var events = root.getEvents();
         events.forEach(applicationEventPublisher::publishEvent);
+        root.clearEvents();
     }
 }

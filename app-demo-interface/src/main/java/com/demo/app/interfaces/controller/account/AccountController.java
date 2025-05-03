@@ -9,15 +9,17 @@ import com.demo.app.interfaces.controller.account.request.AccountPageQuery;
 import com.demo.app.interfaces.controller.account.request.CardPageQuery;
 import com.demo.app.interfaces.controller.account.request.ChangeAccountStatusRequest;
 import com.demo.app.interfaces.controller.account.request.CreateAccountRequest;
+import com.demo.app.interfaces.controller.account.response.AccountStatusResult;
 import com.demo.app.interfaces.controller.account.response.AccountVO;
 import com.demo.app.interfaces.controller.card.response.CardVO;
-import com.demo.app.service.dto.request.CreateAccountCommand;
-import com.demo.app.service.dto.request.UpdateAccountCommand;
+import com.demo.app.service.common.entity.request.CreateAccountCommand;
+import com.demo.app.service.common.entity.request.UpdateAccountCommand;
 import com.demo.app.service.service.AccountCardBizService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -29,11 +31,25 @@ import java.util.Optional;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/account")
+@RequestMapping("/api/v1/accounts")
+@Validated
 public class AccountController {
     private final AccountCardBizService accountCardBizService;
     private final WebEntityConvertor webEntityConvertor;
 
+    /**
+     * Get account details by ID
+     *
+     * @param id Account ID
+     * @return Account details
+     */
+    @GetMapping("/{id}")
+    CommonResult<AccountVO> account(@PathVariable("id") @Positive Long id) {
+        return accountCardBizService.getAccountById(id)
+                .map(webEntityConvertor::toVO)
+                .map(CommonResult::success)
+                .orElse(CommonResult.success(null));
+    }
 
     /**
      * Create new account
@@ -41,7 +57,7 @@ public class AccountController {
      * @param request Account creation data
      * @return Created account details
      */
-    @PostMapping("/create")
+    @PostMapping
     CommonResult<AccountVO> createAccount(@Valid @RequestBody CreateAccountRequest request) {
         return Optional.ofNullable(accountCardBizService.createAccount(
                         CreateAccountCommand.builder()
@@ -56,19 +72,22 @@ public class AccountController {
     /**
      * Update account status
      *
+     * @param id      the id
      * @param request Status change request
      * @return Updated account details
      */
-    @PostMapping("/status")
-    CommonResult<AccountVO> updateAccountStatus(@Valid @RequestBody ChangeAccountStatusRequest request) {
-        return Optional.ofNullable(accountCardBizService.updateAccountStatus(
-                        UpdateAccountCommand.builder()
-                                .id(request.getId())
-                                .status(request.getStatus())
-                                .build()))
-                .map(webEntityConvertor::toVO)
-                .map(CommonResult::success)
-                .orElse(CommonResult.failed(CommonResultCode.ERROR));
+    @PatchMapping("/{id}/status")
+    CommonResult<AccountStatusResult> updateAccountStatus(@PathVariable("id") @Positive Long id,
+                                                          @Valid @RequestBody ChangeAccountStatusRequest request) {
+        var status = accountCardBizService.updateAccountStatus(
+                UpdateAccountCommand.builder()
+                        .id(id)
+                        .status(request.getStatus())
+                        .build());
+        return CommonResult.success(AccountStatusResult.builder()
+                .id(id)
+                .status(status)
+                .build());
     }
 
     /**
@@ -77,39 +96,26 @@ public class AccountController {
      * @param query Search criteria and pagination
      * @return Paginated account results
      */
-    @GetMapping("/pages")
+    @GetMapping
     public CommonResult<CommonPage<AccountVO>> pageAccountWithCards(@Valid @ModelAttribute AccountPageQuery query) {
-        var pageInfo = new CommonPageInfo(query.getPage(), query.getSize());
-        var pageData = accountCardBizService.getAccountPage(pageInfo, query.getWithCards());
+        var pageData = accountCardBizService.getAccountPage(new CommonPageInfo(query.getPage(), query.getSize()),
+                query.getWithCards());
         return CommonResult.success(pageData.convert(webEntityConvertor::toVO));
     }
 
     /**
      * Get paginated cards for specific account
      *
-     * @param accountId Target account ID
-     * @param query     Pagination parameters
+     * @param id    the id
+     * @param query Pagination parameters
      * @return Paginated card results
      */
-    @GetMapping("/{accountId}/cards")
-    public CommonResult<CommonPage<CardVO>> pageAccountCards(@PathVariable("accountId") @Positive Long accountId,
+    @GetMapping("/{id}/cards")
+    public CommonResult<CommonPage<CardVO>> pageAccountCards(@PathVariable("id") @Positive Long id,
                                                              @Valid @ModelAttribute CardPageQuery query) {
-        var pageInfo = new CommonPageInfo(query.getPage(), query.getSize());
-        var pageData = accountCardBizService.getCardByAccountId(accountId, pageInfo);
+        var pageData = accountCardBizService.getCardByAccountId(id,
+                new CommonPageInfo(query.getPage(), query.getSize()));
         return CommonResult.success(pageData.convert(webEntityConvertor::toVO));
     }
 
-    /**
-     * Get account details by ID
-     *
-     * @param id Account ID
-     * @return Account details
-     */
-    @GetMapping("/detail/{id}")
-    CommonResult<AccountVO> account(@PathVariable("id") @Positive Long id) {
-        return accountCardBizService.getAccountById(id)
-                .map(webEntityConvertor::toVO)
-                .map(CommonResult::success)
-                .orElse(CommonResult.success(null));
-    }
 }

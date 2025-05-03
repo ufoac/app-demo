@@ -3,14 +3,20 @@ package com.demo.app.service.service;
 import com.demo.app.domain.common.entity.CommonPage;
 import com.demo.app.domain.common.entity.CommonPageInfo;
 import com.demo.app.domain.model.account.Account;
+import com.demo.app.domain.model.account.AccountStatus;
 import com.demo.app.domain.model.card.Card;
-import com.demo.app.domain.repository.IAccountRepo;
-import com.demo.app.domain.repository.ICardRepo;
+import com.demo.app.domain.model.card.CardStatus;
 import com.demo.app.domain.repository.IDomainEventPublisher;
-import com.demo.app.domain.service.IContractIdGenerator;
+import com.demo.app.domain.service.AccountCardDomainService;
+import com.demo.app.infrastructure.common.convertor.PageConvertor;
+import com.demo.app.infrastructure.repository.account.IAccountReadWriteRepo;
+import com.demo.app.infrastructure.repository.card.ICardReadWriteRepo;
+import com.demo.app.service.common.convertor.AppEntityConvertor;
+import com.demo.app.service.common.entity.request.*;
+import com.demo.app.service.common.entity.response.AccountDTO;
+import com.demo.app.service.common.entity.response.CardDTO;
 import com.demo.app.service.common.exception.AppErrorCode;
 import com.demo.app.service.common.exception.AppException;
-import com.demo.app.service.dto.request.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-import static com.demo.app.service.common.exception.AppErrorCode.*;
+import static com.demo.app.service.common.exception.AppErrorCode.EMAIL_DUPLICATED;
 
 
 /**
@@ -28,10 +34,11 @@ import static com.demo.app.service.common.exception.AppErrorCode.*;
 @RequiredArgsConstructor
 @Slf4j
 public class AccountCardBizService {
-    private final IAccountRepo accountRepo;
-    private final ICardRepo cardRepo;
+    private final IAccountReadWriteRepo accountRepo;
+    private final ICardReadWriteRepo cardRepo;
     private final IDomainEventPublisher domainEventPublisher;
-    private final IContractIdGenerator contractIdGenerator;
+    private final AccountCardDomainService accountCardDomainService;
+    private final AppEntityConvertor appEntityConvertor;
 
     /**
      * Create account.
@@ -45,8 +52,8 @@ public class AccountCardBizService {
             log.error("cannot create account, email already existed! {}", command.getEmail());
             throw new AppException(EMAIL_DUPLICATED);
         }
-        var account = new Account(command.getEmail(), command.getInfo());
-        account.setContractId(contractIdGenerator.generate(command).value());
+        var account = accountCardDomainService.createAccount(command.getEmail(), command.getInfo());
+        domainEventPublisher.pollEventFrom(account);
         return accountRepo.save(account);
     }
 
@@ -55,20 +62,17 @@ public class AccountCardBizService {
      * Retry for
      *
      * @param command the command
-     * @return the account
+     * @return the account status
      */
     @Transactional(rollbackFor = Exception.class)
-    public Account updateAccountStatus(UpdateAccountCommand command) {
-        Account account = accountRepo.findById(command.getId())
+    public AccountStatus updateAccountStatus(UpdateAccountCommand command) {
+        var account = accountRepo.findById(command.getId())
                 .orElseThrow(() -> new AppException(AppErrorCode.NOT_FOUND));
-        var update = new Account();
-        update.setId(account.getId());
-        update.setStatus(account.getStatus());
-        update.setVersion(account.getVersion());
-        var event = update.changeStatus(command.getStatus());
-        // publish after save committed/rollback
-        domainEventPublisher.publishAll(event);
-        return accountRepo.save(update);
+        var status = account.changeStatus(command.getStatus());
+        // will publish event after transaction committed/rollback
+        domainEventPublisher.pollEventFrom(account);
+        accountRepo.changeStatus(account);
+        return status;
     }
 
 
@@ -80,7 +84,8 @@ public class AccountCardBizService {
      */
     @Transactional(rollbackFor = Exception.class)
     public Card createCard(CreateCardCommand command) {
-        var card = new Card(command.getInfo());
+        var card = accountCardDomainService.createCard(command.getInfo());
+        domainEventPublisher.pollEventFrom(card);
         return cardRepo.save(card);
     }
 
@@ -91,40 +96,30 @@ public class AccountCardBizService {
      * @return the card
      */
     @Transactional(rollbackFor = Exception.class)
-    public Card updateCardStatus(UpdateCardCommand command) {
+    public CardStatus updateCardStatus(UpdateCardCommand command) {
         Card card = cardRepo.findById(command.getId())
                 .orElseThrow(() -> new AppException(AppErrorCode.NOT_FOUND));
-        var update = new Card();
-        update.setId(card.getId());
-        update.setStatus(card.getStatus());
-        update.setVersion(card.getVersion());
-        var event = update.changeStatus(command.getStatus());
-        // publish after save committed/rollback
-        domainEventPublisher.publishAll(event);
-        return cardRepo.save(update);
+        var status = card.changeStatus(command.getStatus());
+        // will publish event after transaction committed/rollback
+        domainEventPublisher.pollEventFrom(card);
+        cardRepo.changeStatus(card);
+        return status;
     }
 
     /**
      * Assign card.
      *
      * @param command the command
-     * @return the card
      */
     @Transactional(rollbackFor = Exception.class)
-    public Card assignCard(AssignCardCommand command) {
+    public void assignCard(AssignCardCommand command) {
         Card card = cardRepo.findById(command.getCardId())
                 .orElseThrow(() -> new AppException(AppErrorCode.NOT_FOUND));
-        if (!accountRepo.existsAccount(command.getAccountId())) {
-            throw new AppException(AppErrorCode.NOT_FOUND);
-        }
-        var update = new Card();
-        update.setId(card.getId());
-        update.setStatus(card.getStatus());
-        update.setVersion(card.getVersion());
-        var event = update.Assign(command.getAccountId());
-        // publish after save committed/rollback
-        domainEventPublisher.publishAll(event);
-        return cardRepo.save(update);
+        Account account = accountRepo.findById(command.getAccountId())
+                .orElseThrow(() -> new AppException(AppErrorCode.NOT_FOUND));
+        accountCardDomainService.AssignCard(account, card);
+        domainEventPublisher.pollEventFrom(card);
+        cardRepo.changeAccount(card);
     }
 
 
@@ -136,8 +131,8 @@ public class AccountCardBizService {
      * @return the account with first page card
      */
     @Transactional(rollbackFor = Exception.class, readOnly = true)
-    public CommonPage<Account> getAccountPage(CommonPageInfo pageInfo, boolean withCard) {
-        return accountRepo.getPage(pageInfo, withCard);
+    public CommonPage<AccountDTO> getAccountPage(CommonPageInfo pageInfo, boolean withCard) {
+        return PageConvertor.toCommonPage(accountRepo.getPage(pageInfo, withCard), appEntityConvertor::toDTO);
     }
 
     /**
@@ -147,8 +142,8 @@ public class AccountCardBizService {
      * @param pageInfo  the page info
      * @return the card by account id
      */
-    public CommonPage<Card> getCardByAccountId(Long accountId, CommonPageInfo pageInfo) {
-        return cardRepo.findByAccountId(accountId, pageInfo);
+    public CommonPage<CardDTO> getCardByAccountId(Long accountId, CommonPageInfo pageInfo) {
+        return PageConvertor.toCommonPage(cardRepo.findByAccountId(accountId, pageInfo), appEntityConvertor::toDTO);
     }
 
     /**
@@ -170,6 +165,5 @@ public class AccountCardBizService {
     public Optional<Card> getCardById(Long id) {
         return cardRepo.findById(id);
     }
-
 
 }

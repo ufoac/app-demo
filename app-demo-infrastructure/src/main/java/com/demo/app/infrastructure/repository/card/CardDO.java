@@ -2,7 +2,9 @@ package com.demo.app.infrastructure.repository.card;
 
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.demo.app.domain.model.card.CardStatus;
+import com.demo.app.domain.model.card.RFID;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -24,13 +26,15 @@ public class CardDO {
     private Long accountId;
     private CardStatus status;
     private String info;
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private RFID rfid;
     /**
-     * Creation timestamp (auto-filled on INSERT)
+     * Creation timestamp (autofilled on INSERT)
      */
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
     /**
-     * Last modification timestamp (auto-filled on INSERT/UPDATE)
+     * Last modification timestamp (autofilled on INSERT/UPDATE)
      */
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;

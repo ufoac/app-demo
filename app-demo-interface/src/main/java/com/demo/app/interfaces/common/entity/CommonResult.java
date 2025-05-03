@@ -59,7 +59,7 @@ public class CommonResult<T> {
      * @return the common result
      */
     public static <T> CommonResult<T> success(T data) {
-        return new CommonResult<T>(CommonResultCode.SUCCESS.getCode(), CommonResultCode.SUCCESS.getMessage(), true, data);
+        return new CommonResult<>(CommonResultCode.SUCCESS.getCode(), CommonResultCode.SUCCESS.getMessage(), true, data);
     }
 
     /**

@@ -17,6 +17,4 @@ import lombok.NoArgsConstructor;
 public class AssignCardRequest {
     @Positive
     private Long accountId;
-    @Positive
-    private Long cardId;
 }

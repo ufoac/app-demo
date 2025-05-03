@@ -6,24 +6,34 @@ package com.demo.app.domain.common.exception;
  */
 public enum DomainErrorCode implements IErrorCode {
     /**
-     * 2000, General failed domain error code.
+     * General failed domain error code.
      */
     GENERAL_FAILED(2000, "General business logic error"),
-
     /**
-     * 2001 - The Validation EMAID failed.
+     * The Validation EMAID failed.
      */
     VALIDATION_EMAID_FAILED(2001, "EMAID validation failed"),
+    /**
+     * The Validation rfid failed.
+     */
+    VALIDATION_RFID_FAILED(2002, "RFID validation failed"),
 
     /**
-     * 2002 - Insufficient business permissions
+     * The Validation email failed.
      */
-    PERMISSION_DENIED(2002, "Insufficient business permissions"),
+    VALIDATION_EMAIL_FAILED(2003, "EMAIL validation failed"),
     /**
-     * 2003 - Illegal business state transition
+     * Insufficient business permissions
      */
-    ILLEGAL_STATE(2003, "Illegal business state");
-
+    PERMISSION_DENIED(2004, "Insufficient business permissions"),
+    /**
+     * Illegal business state transition
+     */
+    ILLEGAL_STATE(2005, "Illegal business state"),
+    /**
+     * The Deactivated state.
+     */
+    DEACTIVATED_STATE(2006, "Deactivated business state");
     private final long code;
     private final String message;
 

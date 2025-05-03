@@ -12,10 +12,8 @@ import lombok.Data;
 public class AccountPageQuery {
     @Min(value = 1)
     private Long page = 1L;
-
     @Min(value = 1)
     @Max(value = 100)
     private Long size = 10L;
-
     private Boolean withCards = true;
 }
