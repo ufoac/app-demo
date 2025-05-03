@@ -4,7 +4,7 @@ import com.demo.app.domain.common.exception.DomainException;
 import com.demo.app.domain.model.account.Account;
 import com.demo.app.domain.model.account.AccountStatus;
 import com.demo.app.domain.model.card.Card;
-import com.demo.app.domain.service.internal.impl.RandomRFIDGenerator;
+import com.demo.app.domain.service.internal.impl.SnowflakeRFIDGenerator;
 import com.demo.app.domain.service.internal.impl.TimeBasedContractIdGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -42,7 +42,7 @@ class AccountCardDomainServiceTest {
     void setup() {
         service = new AccountCardDomainService(
                 new TimeBasedContractIdGenerator(),
-                new RandomRFIDGenerator()
+                new SnowflakeRFIDGenerator()
         );
     }
 

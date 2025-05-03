@@ -2,7 +2,7 @@ package com.demo.app.interfaces.controller.card;
 
 import com.demo.app.domain.model.card.Card;
 import com.demo.app.domain.model.card.CardStatus;
-import com.demo.app.domain.service.internal.impl.RandomRFIDGenerator;
+import com.demo.app.domain.service.internal.impl.SnowflakeRFIDGenerator;
 import com.demo.app.interfaces.common.convertor.WebEntityConvertor;
 import com.demo.app.interfaces.controller.card.request.AssignCardRequest;
 import com.demo.app.interfaces.controller.card.request.ChangeCardStatusRequest;
@@ -67,7 +67,7 @@ class CardControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
         testCard = new Card();
         testCard.setId(CARD_ID);
-        testCard.setRfid(new RandomRFIDGenerator().generate(CARD_INFO));
+        testCard.setRfid(new SnowflakeRFIDGenerator().generate(CARD_INFO));
         testCard.setInfo(CARD_INFO);
         testCard.setStatus(CardStatus.CREATED);
         testCard.setCreateTime(LocalDateTime.now());
